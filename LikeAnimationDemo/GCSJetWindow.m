@@ -38,11 +38,11 @@
     self = [super initWithFrame:frame];
     if (self) {
         
-        UILongPressGestureRecognizer *pan = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(press:)];
+        UILongPressGestureRecognizer *press = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(press:)];
         
         UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tap:)];
         
-        [self addGestureRecognizer:pan];
+        [self addGestureRecognizer:press];
         [self addGestureRecognizer:tap];
         
         [self setupViews];

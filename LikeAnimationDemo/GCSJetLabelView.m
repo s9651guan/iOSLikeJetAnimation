@@ -7,10 +7,14 @@
 //
 
 #import "GCSJetLabelView.h"
+#import "POP.h"
 
 @interface GCSJetLabelView ()
 
 @property (nonatomic, strong) UILabel *countLabel;
+
+@property (nonatomic, assign) CGPoint labelPosition;
+@property (nonatomic, assign) CGPoint labelAnchor;
 
 @end
 
@@ -46,16 +50,44 @@
     self.countLabel.attributedText = aString;
     self.countLabel.frame = CGRectMake(CGRectGetMidX(beginFrame) - attSize.width,
                                        CGRectGetMinY(beginFrame) - attSize.height - 30,
-                                       attSize.width,
+                                       attSize.width + 10,
                                        attSize.height);
+    [self calculateAnchor];
 }
 
 #pragma mark - Private
+
+- (void)calculateAnchor {
+    CGRect frame = self.countLabel.frame;
+    CGFloat x = CGRectGetMaxX(frame);
+    CGFloat y = CGRectGetMaxY(frame);
+    self.labelPosition = CGPointMake(x, y);
+    self.labelAnchor = CGPointMake(1, 1);
+}
+
+- (void)showScaleAnimation {
+    self.countLabel.layer.position = self.labelPosition;
+    self.countLabel.layer.anchorPoint = self.labelAnchor;
+    
+    POPSpringAnimation *anima = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerScaleXY];
+    anima.fromValue = [NSValue valueWithCGSize:CGSizeZero];
+    anima.toValue = [NSValue valueWithCGSize:CGSizeMake(1, 1)];
+    anima.springBounciness = 15;
+    anima.springSpeed = 30;
+    anima.beginTime = 0;
+    anima.completionBlock = ^(POPAnimation *anim, BOOL finished) {
+        
+    };
+    [self.countLabel.layer pop_addAnimation:anima forKey:nil];
+}
 
 - (NSAttributedString *)attributedStringWithCount:(NSInteger)count {
     
     if (count >= 1000 || count <= 1) {
         return nil;
+    }
+    if (count == 2) {
+        [self showScaleAnimation];
     }
     
     NSInteger x = count % 10;//个
