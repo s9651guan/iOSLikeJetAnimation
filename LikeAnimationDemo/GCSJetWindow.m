@@ -73,10 +73,14 @@
             [self.timer invalidate];
             self.timer = nil;
         }
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(countDidChanged) userInfo:nil repeats:YES];
-        
+        self.timer = [[NSTimer alloc]initWithFireDate:[NSDate date] interval:0.3 target:self selector:@selector(countDidChanged) userInfo:nil repeats:YES];
+        [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+        NSLog(@"长按开始，创建计时器");
     } else if (state == UIGestureRecognizerStateEnded) {
+        NSLog(@"长按结束");
         self.isSelected = NO;
+        [self dismiss];
+        
     }
 }
 
@@ -88,19 +92,18 @@
     if ([self checkShouldDismissWindow]) {
         return;
     }
+    NSLog(@"计时器 + 1 count == %lu", _count);
     self.count += 1;
     [self.countLabel setHidden:NO];
     [self.countLabel updateViewWithBeginFrame:self.beginFrame count:self.count];
     
     [self.animaView startJetAnimaWithBeginFrame:self.beginFrame completionHandler:nil];
     
-    
     [[GCSFeedBackManager sharedInstance]triggerImpactFeedBack];
 }
 
 - (BOOL)checkShouldDismissWindow {
     if (!self.isSelected) {
-        [self dismiss];
         return YES;
     }
     return NO;
@@ -115,10 +118,13 @@
     //缩放动画
     
     GCS_WS(ws);
+    NSLog(@"dismiss,停止喷射");
     [self.animaView endJetAnimaWithCompletionHandler:^{
-        if (!ws.isSelected) {
-            [ws.countLabel setHidden:YES];
+        if (ws.isSelected) {
+            return ;
         }
+        
+        [ws.countLabel setHidden:YES];
         if (ws.timer) {
             [ws.timer invalidate];
             ws.timer = nil;

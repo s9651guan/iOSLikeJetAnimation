@@ -17,6 +17,8 @@
 @property (nonatomic, copy) GCSBlock startBlock;
 @property (nonatomic, copy) GCSBlock endBlock;
 
+@property (nonatomic, assign) CGFloat currentBirthRate;//粒子产生速度
+
 @end
 
 @implementation GCSJetAnimationView
@@ -40,7 +42,7 @@
     CAEmitterCell *cell = [CAEmitterCell emitterCell];
     cell.name = name;
     //粒子产生率(/秒）
-    cell.birthRate = 1.f;
+    cell.birthRate = 5.f;
     //粒子生命周期
     cell.lifetime = 2.f;
     //粒子生命周期改变范围
@@ -85,7 +87,10 @@
 - (void)startJetAnimaWithBeginFrame:(CGRect)beginFrame completionHandler:(GCSBlock)completionHandler {
     //发射点
     self.emitterLayer.emitterPosition = beginFrame.origin;
-
+    if (!self.emitterLayer.superlayer) {
+        [self.layer addSublayer:self.emitterLayer];
+    }
+    
     [self startJetAnima];
 
     //完成回调
@@ -104,7 +109,14 @@
 }
 
 - (void)endCallBack {
+    
+    if (self.currentBirthRate != 0) {
+        return;
+    }
+    NSLog(@"最后一次喷射结束，进入回调");
     self.nameList = nil;
+    [self.emitterLayer removeFromSuperlayer];
+    
     //完成回调
     if (self.endBlock) {
         self.endBlock();
@@ -118,6 +130,7 @@
     
     [self setupEmitterCells];
     [self changeEmitterCellBirthRate:5];
+    
 }
 
 - (void)setupEmitterCells {
@@ -142,11 +155,16 @@
 }
 
 - (void)changeEmitterCellBirthRate:(NSInteger)birthRate {
-    //修改粒子生成速度
-    for (NSString *name in self.nameList) {
-        NSString *keyPath = [NSString stringWithFormat:@"emitterCells.%@.birthRate", name];
-        [self.emitterLayer setValue:@(birthRate) forKeyPath:keyPath];
-    }
+    self.currentBirthRate = birthRate;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"修改射速");
+        //修改粒子生成速度
+        for (NSString *name in self.nameList) {
+            NSString *keyPath = [NSString stringWithFormat:@"emitterCells.%@.birthRate", name];
+            [self.emitterLayer setValue:@(birthRate) forKeyPath:keyPath];
+            NSLog(@"~~~~~~~~~~~~~~~~修改射速 == %lu", birthRate);
+        }
+    });
 }
 
 @end
