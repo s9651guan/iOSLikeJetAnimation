@@ -1,0 +1,19 @@
+//
+//  GCSCommon.pch
+//  LikeAnimationDemo
+//
+//  Created by 宋冠辰 on 2018/10/27.
+//  Copyright © 2018年 GCS. All rights reserved.
+//
+
+#ifndef GCSCommon_pch
+#define GCSCommon_pch
+
+#define GCS_SCREENW [UIScreen mainScreen].bounds.size.width//屏幕宽
+#define GCS_SCREENH [UIScreen mainScreen].bounds.size.width//屏幕宽
+
+#define GCS_WS(weakSelf) __weak typeof(&*self)weakSelf = self;
+
+typedef void(^GCSBlock)(void);
+
+#endif /* GCSCommon_pch */
